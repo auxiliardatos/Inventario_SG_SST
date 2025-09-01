@@ -1,6 +1,10 @@
 streamlit
 pandas
 matplotlib
-supabase
 st-supabase-connection
 fpdf
+supabase
+gotrue
+postgrest
+realtime
+storage3
