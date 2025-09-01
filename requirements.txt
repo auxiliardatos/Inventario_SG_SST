@@ -1,5 +1,6 @@
 streamlit
 pandas
 matplotlib
+supabase
 st-supabase-connection
 fpdf
