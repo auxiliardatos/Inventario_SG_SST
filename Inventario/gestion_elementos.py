@@ -29,14 +29,15 @@ def crear_elemento(st_supabase_client):
         # Campos dinámicos según tipo
         if tipo == "Botiquin":
             clase_botiquin = st.text_input("Clase de botiquín")
+            tipo_botiquin = st.text_input("Tipo de botiquín")
         elif tipo == "Camilla":
             tipo_camilla = st.text_input("Tipo de camilla")
         elif tipo == "EPP":
             epp_tipo_proteccion = st.text_input("Tipo de protección")
         elif tipo == "Extintor":
-            tipo_extintor = st.text_input("Tipo de extintor")
             codigo_extintor = st.text_input("Código de extintor")
-            clase_extintor = st.text_input("Clase de extintor")
+            tipo_extintor = st.text_input("Tipo de extintor")
+            clase_extintor = st.selectbox("Clase de extintor", options=["ABC","CO2","H2O (AGUA)", "H2O (AGUA) A PRESIÓN"])
             fecha_ultima_recarga = st.date_input("Fecha de última recarga")
             fecha_esperada_recarga = st.date_input("Fecha esperada de recarga")
         elif tipo == "Señaletica":
@@ -47,9 +48,9 @@ def crear_elemento(st_supabase_client):
         ruta_imagen = st.text_input("Imagen")
         descripcion_uso = st.text_area("Descripción de uso")
         descripcion_mantenimiento = st.text_area("Descripción de mantenimiento")
-        estandar_normativo = st.text_input("Estandar normativo")
-        periodo_cambio = st.text_input("Periodo de cambio")
         descripcion_tecnica = st.text_area("Descripción técnica")
+        estandar_normativo = st.text_input("Estandar normativo")    
+        periodo_cambio = st.text_input("Periodo de cambio")
         observaciones = st.text_area("Observaciones adicionales")
         
         # Botón de submit
@@ -78,7 +79,7 @@ def crear_elemento(st_supabase_client):
 
                     # ---- Características dinámicas ----
                     if tipo == "Botiquin":
-                        send_data2 = {"clase_botiquin": clase_botiquin, "id_elemento": id_elemento}
+                        send_data2 = {"clase_botiquin": clase_botiquin, "tipo_botiquin": tipo_botiquin, "id_elemento": id_elemento}
                         st_supabase_client.table("CaracteristicaBotiquin").insert(send_data2).execute()
                     elif tipo == "Camilla":
                         send_data2 = {"tipo_camilla": tipo_camilla, "id_elemento": id_elemento}
@@ -123,7 +124,6 @@ def eliminar_elemento(st_supabase_client):
     # Mostrar opciones en un selectbox
     opciones = {f"{el['nombre']} ({el['tipo']})": el["id"] for el in elementos}
     seleccion = st.selectbox("Selecciona el elemento a eliminar", list(opciones.keys()))
-    
     
     id_elemento = opciones[seleccion]
     
@@ -182,9 +182,9 @@ def editar_elemento(st_supabase_client):
         ruta_imagen = st.text_input("Imagen", value=elemento["ruta_imagen"] or "")
         descripcion_uso = st.text_area("Descripción de uso", value=elemento["descripcion_uso"] or "")
         descripcion_mantenimiento = st.text_area("Descripción de mantenimiento", value=elemento["descripcion_mantenimiento"] or "")
+        descripcion_tecnica = st.text_area("Descripción técnica", value=elemento["descripcion_tecnica"] or "")
         estandar_normativo = st.text_input("Estandar normativo", value=elemento["estandar_normativo"] or "")
         periodo_cambio = st.text_input("Periodo de cambio", value=elemento["periodo_cambio"] or "")
-        descripcion_tecnica = st.text_area("Descripción técnica", value=elemento["descripcion_tecnica"] or "")
         observaciones = st.text_area("Observaciones", value=elemento["observaciones"] or "")
 
         # 4. Cargar también la tabla de características según el tipo
@@ -207,6 +207,7 @@ def editar_elemento(st_supabase_client):
         # Campos dinámicos
         if tipo == "Botiquin":
             clase_botiquin = st.text_input("Clase de botiquín", value=caracteristicas.get("clase_botiquin", ""))
+            tipo_botiquin = st.text_input("Tipo de botiquín", value=caracteristicas.get("tipo_botiquin", ""))
         elif tipo == "Camilla":
             tipo_camilla = st.text_input("Tipo de camilla", value=caracteristicas.get("tipo_camilla", ""))
         elif tipo == "EPP":
@@ -214,7 +215,13 @@ def editar_elemento(st_supabase_client):
         elif tipo == "Extintor":
             tipo_extintor = st.text_input("Tipo de extintor", value=caracteristicas.get("tipo_extintor", ""))
             codigo_extintor = st.text_input("Código de extintor", value=caracteristicas.get("codigo", ""))
-            clase_extintor = st.text_input("Clase de extintor", value=caracteristicas.get("clase_extintor", ""))
+            opciones_extintor = ["ABC","CO2","H2O (AGUA)", "H2O (AGUA) A PRESIÓN"]
+            clase_guardada = caracteristicas.get("clase_extintor", opciones_extintor[0])  # por defecto el primero
+            clase_extintor = st.selectbox(
+                "Clase de extintor",
+                options=opciones_extintor,
+                index=opciones_extintor.index(clase_guardada) if clase_guardada in opciones_extintor else 0
+            )
         
             fecha_ultima_recarga = st.date_input(
                 "Fecha de última recarga",
@@ -251,7 +258,7 @@ def editar_elemento(st_supabase_client):
                 if tipo in tablas_tipo:
                     update_carac = {}
                     if tipo == "Botiquin":
-                        update_carac = {"clase_botiquin": clase_botiquin}
+                        update_carac = {"clase_botiquin": clase_botiquin, "tipo_botiquin":tipo_botiquin}
                     elif tipo == "Camilla":
                         update_carac = {"tipo_camilla": tipo_camilla}
                     elif tipo == "EPP":

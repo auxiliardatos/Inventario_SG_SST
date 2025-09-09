@@ -98,7 +98,8 @@ def crear_movimiento_inventario(st_supabase_client):
         
         # Campos comunes
         cantidad = st.number_input("Cantidad", min_value=1, step=1)
-        persona_aprueba = st.text_input("Persona que realiza el movimiento")
+        opciones_usuario_admin = {usuario["nombres"]: usuario["id"] for usuario in usuarios}
+        seleccion_usuario_admin = st.selectbox("Selecciona agente que realiza movimiento", list(opciones_usuario_admin.keys()))
         observaciones = st.text_area("Observaciones:")
         opciones = {elemento["nombre"]: elemento["id"] for elemento in elementos}
         seleccion_elemento = st.selectbox("Selecciona el elemento", list(opciones.keys()))
@@ -116,10 +117,10 @@ def crear_movimiento_inventario(st_supabase_client):
             send_data = {
                 "cantidad": cantidad,
                 "tipo_movimiento": tipo_movimiento,
-                "persona_aprueba": persona_aprueba.strip(),
                 "observaciones": observaciones.strip() if observaciones else None,
                 "id_elemento": id_elemento,
                 "id_usuario": id_usuario,
+                "id_usuario_admin": seleccion_usuario_admin,
             }
             
             try:
